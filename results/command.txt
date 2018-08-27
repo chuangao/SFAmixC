@@ -1,0 +1,5 @@
+./SFAmix --y ./data/gexp.txt --out results 
+
+Y_TMP has dimension of 10000 by 500
+
+Submatrix of Y has dimension of 10000 by 500
