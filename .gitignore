@@ -1,0 +1,7 @@
+./data/*
+./lib/*
+./results/*
+./gsl-2.2/*
+./include/R/*
+./include/gsl/*
+.DS_Store
