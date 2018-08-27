@@ -7,7 +7,7 @@ ifeq ($(unamestr),Darwin)
 	CFLAGS=-g -O2 -DNDEBUG -fpic -pipe -march=x86-64 -ffast-math
 endif
 #CFLAGS=-O2 -march=x86-64 -ffast-math -DHAVE_INLINE -DGSL_RANGE_CHECK_OFF -g -pg -fopenmp
-LINKER=-L${CURDIR}/lib/
+LINKER=-L${CURDIR}/lib/ -Wl,-rpath,${CURDIR}/lib/
 
 INCLUDE=-isystem${CURDIR}/ -isystem${CURDIR}/include/
 
