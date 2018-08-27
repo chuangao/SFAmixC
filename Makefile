@@ -16,7 +16,7 @@ LIBS=-lgsl -lgslcblas -lm
 
 OBJECTS= SFAmix_c.o
 
-all: myHeader.o SFAmix clean
+all: install myHeader.o SFAmix clean
 
 SFAmix: $(OBJECTS)
 	$(CC) $(CFLAGS) $(OBJECTS) -o SFAmix $(LINKER) $(LIBS)
