@@ -1,6 +1,6 @@
 ## SFAmix
 
-SFAmix is a sparse matrix decomposition tool. Given a matrix **Y** with dimension of **P** by **N**, BicMix decompose it into the product of two sparse matrices **LAM** and dense matrix **X**
+SFAmix is a sparse matrix decomposition tool. Given a matrix **Y** with dimension of **P** by **N**, SFAmix decompose it into the product of two sparse matrices **LAM** and dense matrix **X**
 
 ## How to install
 
