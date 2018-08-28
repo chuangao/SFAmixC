@@ -18,6 +18,9 @@
 #include <gsl/gsl_sf_psi.h>
 #include <gsl/gsl_sf_gamma.h>
 
+#include <dirent.h>
+#include <errno.h>
+
 using namespace Eigen;
 using namespace std;
 
@@ -42,8 +45,8 @@ using Eigen::MatrixXd;
 int main(int argc,char *argv[]){
     
     // declare variables 
-	int nf=50,nf2=0,s_n=0,d_y=0,i_seed=0,n_itr=5001,write_itr=50;
-    double a=0.5,b=0.5,c=0.5,d=0.5,g=0.5,h=0.5,alpha=1,beta=1;
+	int nf=100,nf2=0,s_n=0,d_y=0,i_seed=0,n_itr=5001,write_itr=50;
+    double a=0.5,b=0.5,c=0.5,d=0.5,g=0.5,h=0.5,alpha=1,beta=1,nf_keep=10;
     
     string file_y,dir_out,sep;
     stringstream ss;
@@ -52,7 +55,7 @@ int main(int argc,char *argv[]){
     int interval=200;
     
     // read in argument
-    string s_df="--nf",s_y="--y",s_out="--out",s_sep="--sep",s_a="--a",s_b="--b",s_c="--c",s_d="--d",s_e="--e",s_f="--f",s_seed="--seed",s_itr="--itr",s_interval="--interval",s_write_itr="--write_itr";
+    string s_df="--nf",s_y="--y",s_out="--out",s_sep="--sep",s_a="--a",s_b="--b",s_c="--c",s_d="--d",s_e="--e",s_f="--f",s_seed="--seed",s_itr="--itr",s_interval="--interval",s_write_itr="--write_itr",s_df_keep="--nf_keep";
     for(int i=0;i<argc;i++){
         if(s_df.compare(argv[i])==0){nf=atoi(argv[i+1]);}
         if(s_y.compare(argv[i])==0){file_y=argv[i+1];}
@@ -68,8 +71,31 @@ int main(int argc,char *argv[]){
 		if(s_write_itr.compare(argv[i])==0){write_itr=atoi(argv[i+1]);}
         //if(s_seed.compare(argv[i])==0){i_seed=atoi(argv[i+1]);}
         if(s_itr.compare(argv[i])==0){n_itr=atoi(argv[i+1]);}
+        if(s_df_keep.compare(argv[i])==0){nf_keep=atoi(argv[i+1]);}
     }
-       
+    // convert directory name to char_array
+    int n_char = dir_out.length();
+    // declaring character array
+    char char_array[n_char+1];
+    // copying the contents of the
+    // string to char array
+    strcpy(char_array, dir_out.c_str());
+    DIR* dir = opendir(char_array);
+    if (dir)
+    {
+        /* Directory exists. */
+        closedir(dir);
+    }
+    else
+    {
+        /* Directory does not exist. */
+        printf("Can't open results directory, stopping. \n");exit(0);
+    }
+    //else
+    //{
+    //    /* opendir() failed for some other reason. */
+    //}
+    
     // calculate the sample size and the gene numbers 
     string line;
     string field;
@@ -103,7 +129,21 @@ int main(int argc,char *argv[]){
         }
         f_com << endl;
     }
-    f_com << endl << "Y_TMP has dimension of " << s_n << " by " << d_y << endl << endl;
+    f_com << "Y matrix has dimension of " << s_n << " by " << d_y << endl << endl;
+    f_com << "Starting analysis using factor number of " << nf << endl;
+    //f_com << "Command is written in command.txt" << endl;
+    f_com << "The total number of runs is set to "  << n_itr << endl;
+    f_com << "Results will be written for every " << write_itr << " iterations" << endl;
+    f_com << "Convergence is reached if the total number of sparse elements remain unchanged for " << interval << " iterations" << endl;
+    f_com << "The algorithm impose strong shrinkage, to avoid over shrinkage, it is set to keep approximately " << nf_keep << " factors at least" << endl;
+    f_com.close();
+    
+    cout << "Starting analysis using factor number of " << nf << endl;
+    cout << "Details of the run parameters can be found in command.txt" << endl;
+    cout << "The total number of runs is set to "  << n_itr << endl;
+    cout << "Results will be written for every " << write_itr << " iterations" << endl;
+    cout << "Convergence is reached if the total number of sparse elements remain unchanged for " << interval << " iterations" << endl;
+    cout << "The algorithm impose strong shrinkage, to avoid over shrinkage, it is set to keep approximately " << nf_keep << " factors at least" << endl;
     
     // read in the Y matrix 
     MatrixXd Y_TMP=MatrixXd::Constant(s_n,d_y,0);
@@ -134,9 +174,7 @@ int main(int argc,char *argv[]){
 	//s_n=500;
     MatrixXd Y=MatrixXd::Constant(s_n,d_y,0);
     Y=Y_TMP.block(0,0,s_n,d_y);
-    f_com << "Submatrix of Y has dimension of " << s_n << " by " << d_y << endl;
-    f_com.close();
- 
+    
     
     // Declare variables independent of factor number to prepare for the EM algorithm
     
@@ -249,7 +287,7 @@ int main(int argc,char *argv[]){
 	
     for(int itr=0;itr<(n_itr-1);itr++){
 
- 
+        
         // Expectation step
 
      	MatrixXd LAM_T=LAM.transpose();
@@ -276,7 +314,9 @@ int main(int argc,char *argv[]){
 			double lam_sum=LAM.col(i).dot(LAM.col(i));
 			double bt = Z(1,i)*lam_sum;
 			PHI(i)=double(sum_c+sqrt(sum_c*sum_c+at*bt))/at;
-			
+            //if(nf <= nf_keep){
+            //    PHI(i) = PHI(i) + 1e-280;
+            //}
 			// if(PHI(i)<1e-300){
 			// 	PHI(i)=1e-300;
 			// }
@@ -641,10 +681,11 @@ int main(int argc,char *argv[]){
 				ss << dir_out << "/lam_count";
 				ofstream f_lam_count (ss.str().c_str());
 				if (f_lam_count.is_open()){
-					f_lam_count << lam_count_v << endl;
+					f_lam_count << count_lam.transpose() << endl;
 				}
 				f_lam_count.close();
 
+                
 				
 				exit(0);
  
@@ -719,12 +760,21 @@ int main(int argc,char *argv[]){
 			}
 			f_PSI.close();
 
+            ss.str("");
+            ss.clear();
+            ss << dir_out << "/Phi_" << itr;
+            ofstream f_Phi (ss.str().c_str());
+            if (f_Phi.is_open()){
+                f_Phi << PHI << endl;
+            }
+            f_PSI.close();
+            
 			ss.str("");
 			ss.clear();
 			ss << dir_out << "/lam_count_" << itr;
 			ofstream f_lam_count (ss.str().c_str());
 			if (f_lam_count.is_open()){
-				f_lam_count << lam_count_v << endl;
+				f_lam_count << count_lam.transpose() << endl;
 			}
 			f_lam_count.close();
     
