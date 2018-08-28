@@ -52,7 +52,7 @@ int main(int argc,char *argv[]){
     stringstream ss;
 
     sep="tab";
-    int interval=200;
+    int interval=500;
     
     // read in argument
     string s_df="--nf",s_y="--y",s_out="--out",s_sep="--sep",s_a="--a",s_b="--b",s_c="--c",s_d="--d",s_e="--e",s_f="--f",s_seed="--seed",s_itr="--itr",s_interval="--interval",s_write_itr="--write_itr",s_df_keep="--nf_keep";
