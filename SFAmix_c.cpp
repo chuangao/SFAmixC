@@ -135,7 +135,7 @@ int main(int argc,char *argv[]){
     f_com << "The total number of runs is set to "  << n_itr << endl;
     f_com << "Results will be written for every " << write_itr << " iterations" << endl;
     f_com << "Convergence is reached if the total number of sparse elements remain unchanged for " << interval << " iterations" << endl;
-    f_com << "The algorithm impose strong shrinkage, to avoid over shrinkage, it is set to keep approximately " << nf_keep << " factors at least" << endl;
+    //f_com << "The algorithm impose strong shrinkage, to avoid over shrinkage, it is set to keep approximately " << nf_keep << " factors at least" << endl;
     f_com.close();
     
     cout << "Starting analysis using factor number of " << nf << endl;
@@ -143,7 +143,7 @@ int main(int argc,char *argv[]){
     cout << "The total number of runs is set to "  << n_itr << endl;
     cout << "Results will be written for every " << write_itr << " iterations" << endl;
     cout << "Convergence is reached if the total number of sparse elements remain unchanged for " << interval << " iterations" << endl;
-    cout << "The algorithm impose strong shrinkage, to avoid over shrinkage, it is set to keep approximately " << nf_keep << " factors at least" << endl;
+    //cout << "The algorithm impose strong shrinkage, to avoid over shrinkage, it is set to keep approximately " << nf_keep << " factors at least" << endl;
     
     // read in the Y matrix 
     MatrixXd Y_TMP=MatrixXd::Constant(s_n,d_y,0);
